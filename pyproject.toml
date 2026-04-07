@@ -1,0 +1,33 @@
+[build-system]
+requires = ["setuptools>=69", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "openenv-natural-language-reward-definition"
+version = "0.1.0"
+description = "OpenEnv-compliant reinforcement learning environment with natural-language reward definitions and an LLM judge."
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "fastapi>=0.115.0",
+    "httpx>=0.28.0",
+    "openai>=2.0.0",
+    "openenv-core[core]>=0.2.2",
+    "pydantic>=2.10.0",
+    "PyYAML>=6.0",
+    "uvicorn[standard]>=0.30.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0.0",
+]
+
+[project.scripts]
+server = "server.app:main"
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.packages.find]
+include = ["nl_reward_env*", "server*"]
