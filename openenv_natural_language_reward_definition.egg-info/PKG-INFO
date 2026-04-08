@@ -1,3 +1,19 @@
+Metadata-Version: 2.4
+Name: openenv-natural-language-reward-definition
+Version: 0.1.0
+Summary: OpenEnv-compliant reinforcement learning environment with natural-language reward definitions and an LLM judge.
+Requires-Python: >=3.10
+Description-Content-Type: text/markdown
+Requires-Dist: fastapi>=0.115.0
+Requires-Dist: httpx>=0.28.0
+Requires-Dist: openai>=2.0.0
+Requires-Dist: openenv-core[core]>=0.2.2
+Requires-Dist: pydantic>=2.10.0
+Requires-Dist: PyYAML>=6.0
+Requires-Dist: uvicorn[standard]>=0.30.0
+Provides-Extra: dev
+Requires-Dist: pytest>=8.0.0; extra == "dev"
+
 # Natural Language Reward Definition Environment
 
 An OpenEnv-compliant reinforcement learning environment where the reward function is defined in plain English and interpreted by an LLM judge instead of hardcoded task logic.
@@ -188,7 +204,7 @@ This repository is designed for Docker Spaces:
 
 - `openenv.yaml` points to `server.app:app`
 - the FastAPI server exposes `/reset`, `/step`, `/state`, `/schema`, `/health`
-- the root Dockerfile launches `python -m server.app` with configurable `WORKERS`, `MAX_CONCURRENT_ENVS`, `PORT`, and `HOST`
+- the root Dockerfile launches `uvicorn server.app:app`
 
 For a Docker Space:
 
@@ -196,55 +212,6 @@ For a Docker Space:
 2. Push this repository.
 3. Add `API_BASE_URL`, `MODEL_NAME`, and `HF_TOKEN` as Space secrets.
 4. Wait for the build to finish, then verify `POST /reset` returns HTTP 200.
-
-## Scaling
-
-This environment now supports the same single-container scaling knobs described in the OpenEnv scaling guide:
-
-- `WORKERS`
-- `MAX_CONCURRENT_ENVS`
-- `PORT`
-- `HOST`
-
-Recommended Hugging Face free-tier settings:
-
-- `WORKERS=2`
-- `MAX_CONCURRENT_ENVS=100`
-
-These defaults are already set in the Dockerfile so the Space behaves sensibly on CPU Basic without extra changes. For local development, you can override them:
-
-```bash
-WORKERS=2 MAX_CONCURRENT_ENVS=100 uv run server --port 8000
-```
-
-Or with Docker:
-
-```bash
-docker run -p 8000:8000 \
-  -e WORKERS=2 \
-  -e MAX_CONCURRENT_ENVS=100 \
-  -e PORT=8000 \
-  -e HOST=0.0.0.0 \
-  -e API_BASE_URL="$API_BASE_URL" \
-  -e MODEL_NAME="$MODEL_NAME" \
-  -e HF_TOKEN="$HF_TOKEN" \
-  nl-reward-env
-```
-
-Free-tier interpretation for this project:
-
-- Development and testing: single container with WebSocket sessions
-- Moderate load on HF Spaces free tier: keep a single container and use `WORKERS=2`
-- Session cap: `MAX_CONCURRENT_ENVS=100` per deployment
-- If you need sustained throughput far beyond free-tier limits, scale horizontally with multiple containers and a load balancer
-
-The server entrypoint also supports:
-
-```bash
-uv run server --port 8001 --workers 2
-```
-
-If the default port is occupied locally, the server automatically falls back to the next available port unless you explicitly request a busy one.
 
 ## Validation and tests
 
