@@ -165,7 +165,8 @@ class RewardInterpreter:
 
     @staticmethod
     def _clip(value: float) -> float:
-        return max(0.0, min(1.0, round(float(value), 4)))
+        epsilon = 0.01
+        return max(epsilon, min(1.0 - epsilon, round(float(value), 4)))
 
     @staticmethod
     def _build_feedback(

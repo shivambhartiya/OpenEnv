@@ -30,7 +30,8 @@ def _contains_any(text: str, phrases: list[str]) -> bool:
 
 
 def _clip(value: float) -> float:
-    return max(0.0, min(1.0, round(value, 4)))
+    epsilon = 0.01
+    return max(epsilon, min(1.0 - epsilon, round(value, 4)))
 
 
 def _parse_json_response(text: str) -> dict[str, Any] | None:

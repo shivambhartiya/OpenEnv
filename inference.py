@@ -22,6 +22,10 @@ MAX_STEPS_OVERRIDE = int(os.getenv("NLRDE_MAX_STEPS", "0"))
 SUCCESS_SCORE_THRESHOLD = 0.75
 
 
+def clamp_open_interval(value: float, epsilon: float = 0.01) -> float:
+    return max(epsilon, min(1.0 - epsilon, float(value)))
+
+
 def log_start(task: str, env: str, model: str) -> None:
     print(f"[START] task={task} env={env} model={model}", flush=True)
 
@@ -34,18 +38,20 @@ def log_step(
     error: Optional[str],
 ) -> None:
     error_val = error if error else "null"
+    safe_reward = clamp_open_interval(reward)
     print(
-        f"[STEP] step={step} action={action} reward={reward:.2f} "
+        f"[STEP] step={step} action={action} reward={safe_reward:.2f} "
         f"done={str(done).lower()} error={error_val}",
         flush=True,
     )
 
 
 def log_end(success: bool, steps: int, score: float, rewards: List[float]) -> None:
-    rewards_str = ",".join(f"{reward:.2f}" for reward in rewards)
+    safe_score = clamp_open_interval(score)
+    rewards_str = ",".join(f"{clamp_open_interval(reward):.2f}" for reward in rewards)
     print(
         f"[END] success={str(success).lower()} steps={steps} "
-        f"score={score:.3f} rewards={rewards_str}",
+        f"score={safe_score:.3f} rewards={rewards_str}",
         flush=True,
     )
 
